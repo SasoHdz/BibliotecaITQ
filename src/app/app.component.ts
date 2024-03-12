@@ -37,21 +37,27 @@ export class AppComponent {
 
   async buscarEjemplares() {
     // Prepara la consulta para buscar en las columnas 'autor', 'titulo' y 'isbn'
-    let { data: EJEMPLARES, error } = await this.supabase
-       .from('EJEMPLARES')
-       .select('*')
-       .or(`autor.ilike.%${this.search}%,titulo.ilike.%${this.search}%,isbn.ilike.%${this.search}%`);
+    if(this.search!=""){
+      let { data: EJEMPLARES, error } = await this.supabase
+      .from('EJEMPLARES')
+      .select('*')
+      .or(`autor.ilike.%${this.search}%,titulo.ilike.%${this.search}%,isbn.ilike.%${this.search}%`);
 
-    // Asegura que EJEMPLARES sea un arreglo vacío si es undefined
-    this.allEjemplares = EJEMPLARES ?? [];
+   // Asegura que EJEMPLARES sea un arreglo vacío si es undefined
+   this.allEjemplares = EJEMPLARES ?? [];
 
-    // Opcional: Limita los resultados a los primeros 10 registros
-    this.ejemplares = this.allEjemplares?.slice(0, 10);
+   // Opcional: Limita los resultados a los primeros 30 registros
+   this.ejemplares = this.allEjemplares?.slice(0, 30);
 
-    // Maneja el error si existe
-    if (error) {
-       console.error('Error al buscar ejemplares:', error);
+   // Maneja el error si existe
+   if (error) {
+      console.error('Error al buscar ejemplares:', error);
+   }
     }
+    else {
+      this.obtenerData();
+    }
+
    }
 
 
