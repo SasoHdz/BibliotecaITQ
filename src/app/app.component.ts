@@ -11,13 +11,19 @@ export class AppComponent {
     'https://rwzkmxzbedqnbubbuypl.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3emtteHpiZWRxbmJ1YmJ1eXBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk4NjU1MTcsImV4cCI6MjAyNTQ0MTUxN30.xq8M4iTvO51wQbnm70Sdffx7_7RolG7nnOlUXD90A30'
   );
-
+  
+  allpaginas: any[] | null = [];
+  paginas: any[] | null = [];
   ejemplares: any[] | null = [];
   allEjemplares: any[] | null = [];
   search:string = "";
   title = 'BusquedaAservo';
   paginacion:number = 0;
-
+  inicio:number=0;
+  final:number=10;
+  pinicio:number=0;
+  pfinal:number=30;
+  salto:number = 30;
 
 
   ngOnInit() {
@@ -31,8 +37,13 @@ export class AppComponent {
     console.log(EJEMPLARES);
     console.log(error);
     this.allEjemplares = EJEMPLARES ?? []; // Asegura que sea un arreglo vacío si EJEMPLARES es undefined
-    this.ejemplares = this.allEjemplares?.slice(0,30);
+    this.ejemplares = this.allEjemplares?.slice(this.pinicio,this.pfinal);
     this.paginacion = (EJEMPLARES?.length ?? 0) / 30;
+    for(let i = 1; i <= this.paginacion;i++)
+    {
+      this.allpaginas?.push(i)
+    }
+    this.paginas=this.allpaginas?.slice(this.inicio,this.final)??[];
   }
 
   async buscarEjemplares() {
@@ -46,8 +57,8 @@ export class AppComponent {
    // Asegura que EJEMPLARES sea un arreglo vacío si es undefined
    this.allEjemplares = EJEMPLARES ?? [];
 
-   // Opcional: Limita los resultados a los primeros 30 registros
-   this.ejemplares = this.allEjemplares?.slice(0, 30);
+   // Opcional: Limita los resultados a los primeros 10 registros
+   this.ejemplares = this.allEjemplares?.slice(this.inicio,this.final);
 
    // Maneja el error si existe
    if (error) {
@@ -60,33 +71,26 @@ export class AppComponent {
 
    }
 
-
-  async obtenerAutor(searchString: string) {
-    let { data: EJEMPLARES, error } = await this.supabase
-      .from('EJEMPLARES')
-      .select('*')
-      .ilike('autor', `%${searchString}%`);
-      this.allEjemplares = EJEMPLARES ?? []; // Asegura que sea un arreglo vacío si EJEMPLARES es undefined
-      this.ejemplares = this.allEjemplares?.slice(0,10);
+  next() {
+    if(this.final+1<this.paginacion){
+      this.inicio+=1
+      this.final+=1
+      this.paginas = this.allpaginas?.slice(this.inicio,this.final)??[];
+    }
   }
 
-  async obtenerTitulo(searchString: string) {
-    let { data: EJEMPLARES, error } = await this.supabase
-      .from('EJEMPLARES')
-      .select('*')
-      .ilike('titulo', `%${searchString}%`);
-      this.allEjemplares = EJEMPLARES ?? []; // Asegura que sea un arreglo vacío si EJEMPLARES es undefined
-      this.ejemplares = this.allEjemplares?.slice(0,10);
-
+  before() {
+    if(this.inicio-1>0){
+      this.inicio-=1
+      this.final-=1
+      this.paginas = this.allpaginas?.slice(this.inicio,this.final)??[];
+    }
   }
 
-  async obtenerISBN(searchString: string) {
-    let { data: EJEMPLARES, error } = await this.supabase
-      .from('isbn')
-      .select('*')
-      .ilike('autor', `%${searchString}%`);
-      this.allEjemplares = EJEMPLARES ?? []; // Asegura que sea un arreglo vacío si EJEMPLARES es undefined
-      this.ejemplares = this.allEjemplares?.slice(0,10);
+  showpagina(p:number) {
+    this.pinicio == 0?
+        this.pinicio = 1:this.pinicio
 
+    this.ejemplares=this.allEjemplares?.slice(this.pinicio+(p*this.salto),this.pfinal+(p*this.salto))??[];
   }
 }
